@@ -32,3 +32,15 @@ class UserDhikrRead(models.Model):
     user = models.ForeignKey(User, on_delete=models.PROTECT)
     dhikr = models.ForeignKey(Dhikr, on_delete=models.PROTECT)
     timestamp = models.DateTimeField(auto_now_add=True)
+
+
+class SurahShare(models.Model):
+    shared_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, null=True)
+    shared_with = models.ForeignKey(User, on_delete=models.DO_NOTHING, null=True)
+    surah = models.ForeignKey(Surah, on_delete=models.DO_NOTHING, null=True)
+
+
+class AyahShare(models.Model):
+    shared_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, null=True)
+    shared_with = models.ForeignKey(User, on_delete=models.DO_NOTHING, null=True)
+    ayah = models.ForeignKey(Ayah, on_delete=models.DO_NOTHING, null=True)
