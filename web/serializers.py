@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from web.models import Hadith, Surah, Dhikr, Ayah
+from web.models import Hadith, Surah, Dhikr, Ayah, UserDhikrRead
 
 
 class HadithSerializer(serializers.ModelSerializer):
@@ -17,6 +17,12 @@ class SurahSerializer(serializers.ModelSerializer):
 class DhikrSerializer(serializers.ModelSerializer):
     class Meta:
         model = Dhikr
+        fields = '__all__'
+
+
+class DhikrReadSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UserDhikrRead
         fields = '__all__'
 
 
