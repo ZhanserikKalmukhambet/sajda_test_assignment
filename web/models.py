@@ -17,7 +17,7 @@ class Surah(models.Model):
 class Ayah(models.Model):
     surah = models.ForeignKey(Surah, on_delete=models.CASCADE)
     numeration = models.IntegerField(default=1, blank=False)
-    text = models.TextField()
+    text = models.TextField(blank=False)
 
     def __str__(self):
         return f'{self.surah} - {self.numeration}'

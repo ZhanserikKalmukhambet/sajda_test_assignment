@@ -38,6 +38,8 @@ INSTALLED_APPS = [
 
     'web',
     'users.apps.UsersConfig',
+
+    'rest_framework'
 ]
 
 REST_FRAMEWORK = {
