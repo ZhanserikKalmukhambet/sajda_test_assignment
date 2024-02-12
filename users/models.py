@@ -30,13 +30,10 @@ class User(AbstractUser):
     username = None
     email = models.EmailField(_("email address"), unique=True)
 
-    name = models.CharField(_("name"), max_length=50, default='')
-    surname = models.CharField(_("surname"), max_length=50, default='')
-
     USERNAME_FIELD = "email"
-    REQUIRED_FIELDS = ['name', 'surname']
+    REQUIRED_FIELDS = ['first_name', 'last_name']
 
     objects = CustomUserManager()
 
     def __str__(self):
-        return self.email
+        return self.first_name
