@@ -20,10 +20,16 @@ class DhikrSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-class DhikrReadSerializer(serializers.ModelSerializer):
+class UserDhikrReadSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserDhikrRead
-        fields = '__all__'
+        fields = ['dhikr']
+        read_only_fields = ['user']
+
+    def create(self, validated_data):
+        # Automatically set the authenticated user as the creator of the instance
+        user = self.context['request'].user
+        return UserDhikrRead.objects.create(user=user, **validated_data)
 
 
 class AyahSerializer(serializers.ModelSerializer):

@@ -1,18 +1,59 @@
-from datetime import timezone
+from django.utils import timezone
+from random import choice
 
 from rest_framework import viewsets, status
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
-from web.models import Hadith, Surah, Dhikr, Ayah, UserDhikrRead
-
-from web.serializers import HadithSerializer, SurahSerializer, DhikrSerializer, AyahSerializer, DhikrReadSerializer
-
+from web.models import (Ayah, Hadith, Dhikr, UserDhikrRead, Surah)
+from web.serializers import (AyahSerializer, HadithSerializer, DhikrSerializer, UserDhikrReadSerializer, SurahSerializer)
 
 # Create your views here.
 
-class HadithViewSet(viewsets.ModelViewSet):
-    serializer_class = HadithSerializer
-    queryset = Hadith.objects.all()
+
+class AyahViewSet(viewsets.ViewSet):
+    def retrieve_random(self, request):
+        queryset = choice(Ayah.objects.all())
+        serializer = AyahSerializer(queryset)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class HadithViewSet(viewsets.ViewSet):
+    def retrieve_random(self, request):
+        queryset = choice(Hadith.objects.all())
+        serializer = HadithSerializer(queryset)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class DhikrViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = Dhikr.objects.all()
+    serializer_class = DhikrSerializer
+
+
+class UserDhikrReadViewSet(viewsets.ViewSet):
+    permission_classes = [IsAuthenticated]
+
+    def create(self, request):
+        id = request.data.get('dhikr')
+
+        queryset = UserDhikrRead.objects.filter(dhikr=id)
+        if queryset.exists():
+            return Response({'dhikr': 'already added'}, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            data = request.data
+            serializer = UserDhikrReadSerializer(data=data, context={'request': request})
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+    def update(self, request, pk=None):
+        queryset = UserDhikrRead.objects.get(user_id=request.user.id, dhikr_id=pk)
+
+        serializer = UserDhikrReadSerializer(queryset, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        serializer.save(last_read=timezone.now())
+
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 class SurahViewSet(viewsets.ViewSet):
@@ -28,27 +69,3 @@ class SurahViewSet(viewsets.ViewSet):
 
         serializer = AyahSerializer(queryset, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
-
-
-class DhikrViewSet(viewsets.ModelViewSet):
-    serializer_class = DhikrSerializer
-    queryset = Dhikr.objects.all()
-
-
-class UserDhikrReadViewSet(viewsets.ViewSet):
-    def create(self, request):
-        data = request.data
-        serializer = DhikrReadSerializer(data=data)
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
-
-    def update(self, request, pk_1, pk_2):
-        try:
-            instance = UserDhikrRead.objects.get(user_id=pk_1, dhikr_id=pk_2)
-        except UserDhikrRead.DoesNotExist:
-            return Response({'error': 'Instance not found'}, status=404)
-
-        instance.timestamp = timezone.now()
-        instance.save()
-

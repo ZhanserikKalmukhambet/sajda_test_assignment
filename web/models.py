@@ -1,3 +1,5 @@
+from django.utils import timezone
+
 from django.db import models
 
 from users.models import User
@@ -44,7 +46,7 @@ class Dhikr(models.Model):
 class UserDhikrRead(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     dhikr = models.ForeignKey(Dhikr, on_delete=models.CASCADE)
-    timestamp = models.DateTimeField(auto_now_add=True)
+    last_read = models.DateTimeField(default=timezone.now())
 
     def __str__(self):
         return f'{self.user} - {self.dhikr}'
