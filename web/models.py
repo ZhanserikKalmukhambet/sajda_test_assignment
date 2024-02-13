@@ -53,9 +53,9 @@ class UserDhikrRead(models.Model):
 
 
 class SharedSurah(models.Model):
-    shared_by = models.OneToOneField(User, on_delete=models.CASCADE, related_name='surah_shared_by')
-    shared_with = models.OneToOneField(User, on_delete=models.CASCADE, related_name='surah_shared_with')
-    surah = models.OneToOneField(Surah, on_delete=models.CASCADE)
+    shared_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='surah_shared_by')
+    shared_with = models.ForeignKey(User, on_delete=models.CASCADE, related_name='surah_shared_with')
+    surah = models.ForeignKey(Surah, on_delete=models.CASCADE)
 
     def __str__(self):
         return f'{self.shared_by} -> {self.shared_with} = {self.surah}'

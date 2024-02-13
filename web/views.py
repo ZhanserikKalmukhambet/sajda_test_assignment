@@ -2,11 +2,12 @@ from django.utils import timezone
 from random import choice
 
 from rest_framework import viewsets, status
+from web.pagination import StandardResultsSetPagination
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 from web.models import (Ayah, Hadith, Dhikr, UserDhikrRead, Surah)
-from web.serializers import (AyahSerializer, HadithSerializer, DhikrSerializer, UserDhikrReadSerializer, SurahSerializer)
+from web.serializers import (AyahSerializer, HadithSerializer, DhikrSerializer, UserDhikrReadSerializer, SurahSerializer, SharedSurahSerializer, SharedHadithSerializer)
 
 # Create your views here.
 
@@ -28,6 +29,7 @@ class HadithViewSet(viewsets.ViewSet):
 class DhikrViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Dhikr.objects.all()
     serializer_class = DhikrSerializer
+    pagination_class = StandardResultsSetPagination
 
 
 class UserDhikrReadViewSet(viewsets.ViewSet):
@@ -57,6 +59,8 @@ class UserDhikrReadViewSet(viewsets.ViewSet):
 
 
 class SurahViewSet(viewsets.ViewSet):
+    pagination_class = StandardResultsSetPagination
+
     def list(self, request):
         queryset = Surah.objects.all()
         serializer = SurahSerializer(queryset, many=True)
@@ -69,3 +73,28 @@ class SurahViewSet(viewsets.ViewSet):
 
         serializer = AyahSerializer(queryset, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class SharedSurahViewSet(viewsets.ViewSet):
+    permission_classes = [IsAuthenticated]
+    pagination_class = StandardResultsSetPagination
+
+    def create(self, request):
+        data = request.data
+        serializer = SharedSurahSerializer(data=data, context={'request': request})
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+
+class SharedHadithViewSet(viewsets.ViewSet):
+    permission_classes = [IsAuthenticated]
+    pagination_class = StandardResultsSetPagination
+
+    def create(self, request):
+        data = request.data
+        serializer = SharedHadithSerializer(data=data, context={'request': request})
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
